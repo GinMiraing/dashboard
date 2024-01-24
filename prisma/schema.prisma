@@ -16,11 +16,11 @@ model comment {
   content     String @default("") @db.VarChar(255)
   is_admin    Int    @default(0) @db.TinyInt
   is_hidden   Int    @default(0) @db.TinyInt
-  timestamp   BigInt @default(0)
-  reply_count Int    @default(0)
+  timestamp   Int    @default(0) @db.UnsignedInt
+  reply_count Int    @default(0) @db.UnsignedInt
   path        String @default("") @db.VarChar(50)
-  parent_id   Int    @default(0)
-  reply_id    Int    @default(0)
+  parent_id   Int    @default(0) @db.UnsignedInt
+  reply_id    Int    @default(0) @db.UnsignedInt
   reply_nick  String @default("") @db.VarChar(50)
 }
 
@@ -35,14 +35,12 @@ model friend {
   sorting     Int    @default(0)
 }
 
-model post {
-  id          Int    @id @default(autoincrement())
-  title       String @default("") @db.VarChar(50)
-  description String @default("") @db.VarChar(255)
-  create_at   String @default("") @db.Char(10)
-  update_at   String @default("") @db.Char(10)
-  source_url  String @default("") @db.VarChar(100)
-  is_hidden   Int    @default(0) @db.TinyInt
-  category    String @default("") @db.VarChar(20)
-  likes       Int    @default(0)
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model user {
+  id        Int    @id @default(autoincrement())
+  username  String @db.VarChar(255)
+  email     String @db.VarChar(255)
+  email_md5 String @db.Char(32)
+  password  String @db.VarChar(255)
+  role      Int    @default(0) @db.TinyInt
 }
