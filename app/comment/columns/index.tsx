@@ -1,6 +1,7 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
+import dayjs from "dayjs";
 
 import { CommentSchemaType } from "@/lib/types";
 
@@ -14,7 +15,7 @@ import {
 
 const columns: ColumnDef<CommentSchemaType>[] = [
   {
-    id: "id",
+    id: "Id",
     accessorKey: "id",
     header: "ID",
     cell: ({ getValue }) => {
@@ -23,7 +24,7 @@ const columns: ColumnDef<CommentSchemaType>[] = [
     },
   },
   {
-    id: "avatar",
+    id: "Avatar",
     accessorKey: "email_md5",
     header: "Avatar",
     cell: ({ getValue }) => {
@@ -37,7 +38,7 @@ const columns: ColumnDef<CommentSchemaType>[] = [
     },
   },
   {
-    id: "nick",
+    id: "Nick",
     accessorKey: "nick",
     header: "Nick",
     cell: ({ getValue }) => {
@@ -46,26 +47,25 @@ const columns: ColumnDef<CommentSchemaType>[] = [
     },
   },
   {
-    id: "created_at",
+    id: "Created At",
     accessorKey: "timestamp",
     header: "Created At",
     cell: ({ getValue }) => {
       const value = getValue() as number;
-      return <div>{new Date(value * 1000).toLocaleString()}</div>;
+      return <div>{dayjs.unix(value).format("YYYY-MM-DD HH:mm")}</div>;
     },
   },
   {
-    id: "email",
+    id: "Email",
     accessorKey: "email",
     header: "Email",
-
     cell: ({ getValue }) => {
       const value = getValue() as string;
       return <div>{value}</div>;
     },
   },
   {
-    id: "content",
+    id: "Content",
     accessorKey: "content",
     header: "Content",
     cell: ({ getValue }) => {
@@ -88,7 +88,7 @@ const columns: ColumnDef<CommentSchemaType>[] = [
     },
   },
   {
-    id: "admin",
+    id: "Role",
     accessorKey: "is_admin",
     header: "Role",
     cell: ({ getValue }) => {
