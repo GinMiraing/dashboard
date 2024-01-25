@@ -14,6 +14,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link
+          rel="stylesheet"
+          href="https://s1.hdslb.com/bfs/static/jinkela/long/font/medium.css"
+        />
+        <link
+          rel="stylesheet"
+          href="https://s1.hdslb.com/bfs/static/jinkela/long/font/regular.css"
+        />
+      </head>
       <body>{children}</body>
     </html>
   );
