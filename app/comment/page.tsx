@@ -1,6 +1,6 @@
 "use server";
 
-import prisma from "@/lib/prisma";
+import Prisma from "@/lib/prisma";
 
 import { DataTable } from "@/components/ui/data-table";
 import Pagination from "@/components/ui/pagination";
@@ -16,12 +16,12 @@ export default async function Page({
   const limit = 10;
   const offset = (currentPage - 1) * limit;
 
-  const comments = await prisma.comment.findMany({
+  const comments = await Prisma.comment.findMany({
     take: limit,
     skip: offset,
   });
 
-  const totalComments = await prisma.comment.count();
+  const totalComments = await Prisma.comment.count();
   const totalPage = Math.ceil(totalComments / limit);
 
   return (
