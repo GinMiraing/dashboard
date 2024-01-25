@@ -2,10 +2,9 @@
 
 import Prisma from "@/lib/prisma";
 
-import { DataTable } from "@/components/ui/data-table";
 import Pagination from "@/components/ui/pagination";
 
-import columns from "./columns";
+import DataViewer from "./components/data-viewer";
 
 export default async function Page({
   searchParams,
@@ -26,11 +25,7 @@ export default async function Page({
 
   return (
     <div className="mx-auto flex w-full max-w-screen-xl flex-col space-y-4 py-10">
-      <DataTable
-        data={comments}
-        columns={columns}
-        invisibleColumns={["Avatar"]}
-      />
+      <DataViewer data={comments} />
       <Pagination
         currentPage={currentPage}
         totalPage={totalPage}

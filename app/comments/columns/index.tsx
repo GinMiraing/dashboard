@@ -20,7 +20,7 @@ const columns: ColumnDef<CommentSchemaType>[] = [
     header: "ID",
     cell: ({ getValue }) => {
       const value = getValue() as number;
-      return <div className="mr-4 w-8">{`# ${value}`}</div>;
+      return <div className="min-w-8 text-sm">{`# ${value}`}</div>;
     },
   },
   {
@@ -43,7 +43,7 @@ const columns: ColumnDef<CommentSchemaType>[] = [
     header: "Nick",
     cell: ({ getValue }) => {
       const value = getValue() as string;
-      return <div>{value}</div>;
+      return <div className="min-w-16 text-sm">{value}</div>;
     },
   },
   {
@@ -52,7 +52,11 @@ const columns: ColumnDef<CommentSchemaType>[] = [
     header: "Created At",
     cell: ({ getValue }) => {
       const value = getValue() as number;
-      return <div>{dayjs.unix(value).format("YYYY-MM-DD HH:mm")}</div>;
+      return (
+        <div className="text-nowrap text-sm">
+          {dayjs.unix(value).format("YYYY-MM-DD HH:mm")}
+        </div>
+      );
     },
   },
   {
@@ -61,7 +65,16 @@ const columns: ColumnDef<CommentSchemaType>[] = [
     header: "Email",
     cell: ({ getValue }) => {
       const value = getValue() as string;
-      return <div>{value}</div>;
+      return <div className="text-sm">{value}</div>;
+    },
+  },
+  {
+    id: "Role",
+    accessorKey: "is_admin",
+    header: "Role",
+    cell: ({ getValue }) => {
+      const value = getValue() as number;
+      return <Badge>{value ? "Admin" : "User"}</Badge>;
     },
   },
   {
@@ -76,7 +89,9 @@ const columns: ColumnDef<CommentSchemaType>[] = [
 
       return (
         <Popover modal>
-          <PopoverTrigger>{sliceContent}</PopoverTrigger>
+          <PopoverTrigger asChild>
+            <div className="line-clamp-2 text-sm">{sliceContent}</div>
+          </PopoverTrigger>
           <PopoverContent
             sideOffset={8}
             asChild
@@ -85,15 +100,6 @@ const columns: ColumnDef<CommentSchemaType>[] = [
           </PopoverContent>
         </Popover>
       );
-    },
-  },
-  {
-    id: "Role",
-    accessorKey: "is_admin",
-    header: "Role",
-    cell: ({ getValue }) => {
-      const value = getValue() as number;
-      return <Badge>{value ? "Admin" : "User"}</Badge>;
     },
   },
 ];
