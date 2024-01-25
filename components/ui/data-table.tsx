@@ -29,12 +29,14 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   invisibleColumns?: string[];
+  clickCallback?: (data: TData) => void;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
   invisibleColumns,
+  clickCallback,
 }: DataTableProps<TData, TValue>) {
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
     () => {
@@ -120,6 +122,7 @@ export function DataTable<TData, TValue>({
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
+                  onClick={() => clickCallback?.(row.original)}
                   data-state={row.getIsSelected() && "selected"}
                 >
                   {row.getVisibleCells().map((cell) => (
