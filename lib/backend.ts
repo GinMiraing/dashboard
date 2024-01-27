@@ -36,12 +36,12 @@ export const CheckApiKey = async (request: Request) => {
   const apiKey = request.headers.get("api-key");
 
   if (!apiKey) {
-    return Forbidden();
+    throw new Error("api-key not found");
   }
 
   const exist = await RedisClient.get(apiKey);
 
   if (!exist) {
-    return Forbidden();
+    throw new Error("api-key not found");
   }
 };
