@@ -1,8 +1,13 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import z from "zod";
+
+import { login } from "@/lib/axios";
+import { formatError } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -21,17 +26,23 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useToast } from "@/components/ui/use-toast";
 
-const LoginSchema = z.object({
+const FormSchema = z.object({
   email: z.string().email(),
   password: z.string(),
 });
 
-type LoginSchemaType = z.infer<typeof LoginSchema>;
+type FormSchemaType = z.infer<typeof FormSchema>;
 
 const LoginCard = () => {
-  const form = useForm<LoginSchemaType>({
-    resolver: zodResolver(LoginSchema),
+  const router = useRouter();
+  const { toast } = useToast();
+
+  const [loading, setLoading] = useState(false);
+
+  const form = useForm<FormSchemaType>({
+    resolver: zodResolver(FormSchema),
     defaultValues: {
       email: "",
       password: "",
@@ -39,8 +50,21 @@ const LoginCard = () => {
     mode: "onSubmit",
   });
 
-  const onSubmit = async (data: LoginSchemaType) => {
-    console.log(data);
+  const onSubmit = async (data: FormSchemaType) => {
+    try {
+      setLoading(true);
+      await login(data);
+      router.push("/");
+    } catch (e) {
+      toast({
+        variant: "destructive",
+        title: "Login failed",
+        description: formatError(e),
+        duration: 1000,
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -92,7 +116,12 @@ const LoginCard = () => {
             </div>
           </CardContent>
           <CardFooter className="mt-4 flex w-full flex-col items-end justify-end">
-            <Button type="submit">Login</Button>
+            <Button
+              disabled={loading}
+              type="submit"
+            >
+              Login
+            </Button>
           </CardFooter>
         </form>
       </Form>

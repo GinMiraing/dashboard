@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 
+import { Toaster } from "@/components/ui/toaster";
+
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -24,7 +26,10 @@ export default function RootLayout({
           href="https://s1.hdslb.com/bfs/static/jinkela/long/font/regular.css"
         />
       </head>
-      <body>{children}</body>
+      <body>
+        {children}
+        <Toaster />
+      </body>
     </html>
   );
 }
