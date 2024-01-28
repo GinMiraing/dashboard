@@ -7,15 +7,7 @@ import {
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { useState } from "react";
 
-import { Button } from "./button";
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "./dropdown-menu";
 import {
   Table,
   TableBody,
@@ -28,7 +20,7 @@ import {
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-  invisibleColumns?: string[];
+  invisibleColumns?: VisibilityState;
   clickCallback?: (data: TData) => void;
 }
 
@@ -38,62 +30,17 @@ export function DataTable<TData, TValue>({
   invisibleColumns,
   clickCallback,
 }: DataTableProps<TData, TValue>) {
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
-    () => {
-      if (!invisibleColumns) return {};
-
-      return invisibleColumns.reduce<VisibilityState>((acc, column) => {
-        return {
-          ...acc,
-          [column]: false,
-        };
-      }, {});
-    },
-  );
-
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    onColumnVisibilityChange: setColumnVisibility,
     state: {
-      columnVisibility,
+      columnVisibility: invisibleColumns || {},
     },
   });
 
   return (
     <div className="grid grid-cols-1">
-      <div>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="outline"
-              className="ml-auto"
-            >
-              Columns
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {table
-              .getAllColumns()
-              .filter((column) => column.getCanHide())
-              .map((column) => {
-                return (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    className="capitalize"
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) =>
-                      column.toggleVisibility(!!value)
-                    }
-                  >
-                    {column.id}
-                  </DropdownMenuCheckboxItem>
-                );
-              })}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
       <div className="rounded-md border">
         <Table>
           <TableHeader>
