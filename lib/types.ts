@@ -47,3 +47,7 @@ export type CommentPrismaType = {
   reply_id: number;
   reply_nick: string;
 };
+
+export enum Role {
+  ADMIN = 1,
+}
