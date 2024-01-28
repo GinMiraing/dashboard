@@ -3,7 +3,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 import dayjs from "dayjs";
 
-import { CommentSchemaType } from "@/lib/types";
+import { CommentPrismaType } from "@/lib/types";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -13,7 +13,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-const columns: ColumnDef<CommentSchemaType>[] = [
+const columns: ColumnDef<CommentPrismaType>[] = [
   {
     id: "Id",
     accessorKey: "id",
@@ -75,6 +75,15 @@ const columns: ColumnDef<CommentSchemaType>[] = [
     cell: ({ getValue }) => {
       const value = getValue() as number;
       return <Badge>{value ? "Admin" : "User"}</Badge>;
+    },
+  },
+  {
+    id: "Path",
+    accessorKey: "path",
+    header: "Path",
+    cell: ({ getValue }) => {
+      const value = getValue() as string;
+      return <div className="text-sm">{value}</div>;
     },
   },
   {

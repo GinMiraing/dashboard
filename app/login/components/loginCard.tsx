@@ -54,7 +54,7 @@ const LoginCard = () => {
     try {
       setLoading(true);
       await login(data);
-      router.push("/");
+      router.push("/dashboard");
     } catch (e) {
       toast({
         variant: "destructive",

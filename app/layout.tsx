@@ -26,7 +26,7 @@ export default function RootLayout({
           href="https://s1.hdslb.com/bfs/static/jinkela/long/font/regular.css"
         />
       </head>
-      <body>
+      <body className="font-regular">
         {children}
         <Toaster />
       </body>

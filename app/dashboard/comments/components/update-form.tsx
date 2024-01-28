@@ -1,20 +1,32 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 
-import { CommentSchemaType } from "@/lib/types";
+import {
+  CommentPrismaType,
+  CommentUpdateSchema,
+  CommentUpdateSchemaType,
+} from "@/lib/types";
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { DataTable } from "@/components/ui/data-table";
+import { DialogFooter, DialogHeader } from "@/components/ui/dialog";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
-  DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
@@ -29,68 +41,68 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
 
-import columns from "../columns";
+const UpdateForm: React.FC<{
+  open: boolean;
+  openChangeCallback: (open: boolean) => void;
+  data?: CommentPrismaType;
+}> = ({ data, open, openChangeCallback }) => {
+  const router = useRouter();
 
-const FormSchema = z.object({
-  nick: z.string().min(1),
-  email: z.string().email(),
-  email_md5: z.string().length(32),
-  link: z.union([z.string().length(0), z.string().url()]),
-  content: z.string().min(1),
-  is_admin: z.union([z.literal(0), z.literal(1)]),
-  is_hidden: z.union([z.literal(0), z.literal(1)]),
-  timestamp: z.number(),
-  reply_count: z.number().min(0),
-  path: z.string().min(1),
-  parent_id: z.number().min(0),
-  reply_id: z.number().min(0),
-  reply_nick: z.union([z.string().length(0), z.string().min(1)]),
-});
-
-type FormSchemaType = z.infer<typeof FormSchema>;
-
-const DataViewer = ({ data }: { data: CommentSchemaType[] }) => {
-  const [open, setOpen] = useState<{
-    dialog: boolean;
-    alert: boolean;
-  }>({
-    dialog: false,
-    alert: false,
-  });
-
-  const form = useForm<FormSchemaType>({
-    resolver: zodResolver(FormSchema),
+  const form = useForm<CommentUpdateSchemaType>({
+    resolver: zodResolver(CommentUpdateSchema),
     mode: "onSubmit",
   });
 
-  const onSubmit = async (data: FormSchemaType) => {
-    console.log(data);
+  const [loading, setLoading] = useState(false);
+  const [alertOpen, setAlertOpen] = useState(false);
+
+  const commentId = useRef(1);
+
+  const onSubmit = async (data: CommentUpdateSchemaType) => {
+    try {
+      setLoading(true);
+      console.log(data);
+      openChangeCallback(false);
+      router.refresh();
+    } catch (e) {
+    } finally {
+      setLoading(false);
+    }
   };
 
+  const handleDelete = async (id: number) => {
+    try {
+      console.log("delete" + id);
+      setAlertOpen(false);
+      openChangeCallback(false);
+      router.refresh();
+    } catch (e) {}
+  };
+
+  useEffect(() => {
+    if (data) {
+      form.reset({
+        ...data,
+        is_admin: data.is_admin ? 1 : 0,
+        is_hidden: data.is_hidden ? 1 : 0,
+      });
+      commentId.current = data.id;
+    }
+  }, [data]);
+
+  useEffect(() => {}, []);
+
   return (
-    <div>
-      <DataTable
-        data={data}
-        columns={columns}
-        invisibleColumns={["Avatar"]}
-        clickCallback={(data) => {
-          setOpen((prev) => ({ ...prev, dialog: true }));
-          form.reset({
-            ...data,
-            is_admin: data.is_admin ? 1 : 0,
-            is_hidden: data.is_hidden ? 1 : 0,
-          });
-        }}
-      />
+    <>
       <Dialog
-        open={open.dialog}
-        onOpenChange={(open) => setOpen((prev) => ({ ...prev, dialog: open }))}
+        open={open}
+        onOpenChange={openChangeCallback}
       >
         <DialogContent className="bg-white">
           <DialogHeader>
             <DialogTitle>Edit Comment</DialogTitle>
             <DialogDescription>
-              Make changes to your profile here. Click save when you're done.
+              Make changes to comment here. Click save when you're done.
             </DialogDescription>
           </DialogHeader>
           <Form {...form}>
@@ -365,15 +377,46 @@ const DataViewer = ({ data }: { data: CommentSchemaType[] }) => {
                   />
                 </div>
               </ScrollArea>
-              <DialogFooter>
-                <Button type="submit">Save changes</Button>
+              <DialogFooter className="mt-6 space-x-4">
+                <Button
+                  disabled={loading}
+                  type="submit"
+                >
+                  Save
+                </Button>
+                <Button
+                  type="button"
+                  disabled={loading}
+                  variant="destructive"
+                  onClick={() => setAlertOpen(true)}
+                >
+                  Delete
+                </Button>
               </DialogFooter>
             </form>
           </Form>
         </DialogContent>
       </Dialog>
-    </div>
+      <AlertDialog open={alertOpen}>
+        <AlertDialogContent className="bg-white">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setAlertOpen(false)}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={() => handleDelete(commentId.current)}>
+              Continue
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 };
 
-export default DataViewer;
+export default UpdateForm;

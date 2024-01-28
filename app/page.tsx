@@ -16,7 +16,5 @@ export default async function Page() {
     return redirect("/login");
   }
 
-  console.log(JSON.parse(userData));
-
-  return <div>123</div>;
+  return redirect("/dashboard");
 }
