@@ -4,6 +4,8 @@ import { NextResponse } from "next/server";
 
 import RedisClient from "./redis";
 
+const ADMIN_TOKEN = process.env.ADMIN_TOKEN;
+
 export const BadRequest = (message?: string) => {
   return NextResponse.json(
     { message: message || "bad request" },
@@ -43,5 +45,11 @@ export const CheckApiKey = async (request: Request) => {
 
   if (!exist) {
     throw new Error("api-key not found");
+  }
+};
+
+export const checkAdminToken = async (session: string) => {
+  if (session !== ADMIN_TOKEN) {
+    throw new Error("admin token not match");
   }
 };

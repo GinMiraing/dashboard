@@ -14,7 +14,6 @@ import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -126,36 +125,27 @@ const columns: ColumnDef<CommentPrismaType>[] = [
   },
 ];
 
-const cellId = columns.map((column) => column.id as string);
+const defaultInvisibleColumns: VisibilityState = columns
+  .map((column) => column.id as string)
+  .reduce((acc, id) => {
+    return {
+      ...acc,
+      [id]: true,
+    };
+  }, {});
 
 const DataViewer = ({ data }: { data: CommentPrismaType[] }) => {
-  const [open, setOpen] = useState<{
-    createDialog: boolean;
-    updateDialog: boolean;
-  }>({
-    createDialog: false,
-    updateDialog: false,
-  });
-
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
   const [comment, setComment] = useState<CommentPrismaType | undefined>();
-
   const [invisibleColumns, setInvisibleColumns] = useState<VisibilityState>(
-    () => {
-      return cellId.reduce<VisibilityState>((acc, id) => {
-        return {
-          ...acc,
-          [id]: true,
-        };
-      }, {});
-    },
+    defaultInvisibleColumns,
   );
 
   return (
     <div>
       <div className="flex items-center justify-between space-x-4">
-        <Button
-          onClick={() => setOpen((prev) => ({ ...prev, createDialog: true }))}
-        >
+        <Button onClick={() => setCreateDialogOpen((prev) => !prev)}>
           Create New Comment
         </Button>
         <DropdownMenu>
@@ -163,20 +153,23 @@ const DataViewer = ({ data }: { data: CommentPrismaType[] }) => {
             <Button className="w-32">Columns</Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            {cellId.map((id) => (
-              <DropdownMenuCheckboxItem
-                key={id}
-                checked={invisibleColumns[id]}
-                onCheckedChange={() =>
-                  setInvisibleColumns((prev) => ({
-                    ...prev,
-                    [id]: !prev[id],
-                  }))
-                }
-              >
-                {id}
-              </DropdownMenuCheckboxItem>
-            ))}
+            {columns.map((column) => {
+              const id = column.id as string;
+              return (
+                <DropdownMenuCheckboxItem
+                  key={id}
+                  checked={invisibleColumns[id]}
+                  onCheckedChange={() =>
+                    setInvisibleColumns((prev) => ({
+                      ...prev,
+                      [id]: !prev[id],
+                    }))
+                  }
+                >
+                  {id}
+                </DropdownMenuCheckboxItem>
+              );
+            })}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
@@ -186,21 +179,17 @@ const DataViewer = ({ data }: { data: CommentPrismaType[] }) => {
         invisibleColumns={invisibleColumns}
         clickCallback={(data) => {
           setComment(data);
-          setOpen((prev) => ({ ...prev, updateDialog: true }));
+          setUpdateDialogOpen((prev) => !prev);
         }}
       />
       <UpdateForm
-        open={open.updateDialog}
+        open={updateDialogOpen}
         data={comment}
-        openChangeCallback={(open) =>
-          setOpen((prev) => ({ ...prev, updateDialog: open }))
-        }
+        openChangeCallback={setUpdateDialogOpen}
       />
       <CreateForm
-        open={open.createDialog}
-        openChangeCallback={(open) =>
-          setOpen((prev) => ({ ...prev, createDialog: open }))
-        }
+        open={createDialogOpen}
+        openChangeCallback={setCreateDialogOpen}
       />
     </div>
   );

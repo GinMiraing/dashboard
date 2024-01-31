@@ -5,7 +5,9 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 
+import { createComment } from "@/lib/axios";
 import { CommentCreateSchema, CommentCreateSchemaType } from "@/lib/types";
+import { formatError } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
 import { DialogFooter, DialogHeader } from "@/components/ui/dialog";
@@ -26,27 +28,51 @@ import {
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/components/ui/use-toast";
 
 const CreateForm: React.FC<{
   open: boolean;
   openChangeCallback: (open: boolean) => void;
 }> = ({ open, openChangeCallback }) => {
   const router = useRouter();
+  const { toast } = useToast();
 
   const [loading, setLoading] = useState(false);
 
   const form = useForm<CommentCreateSchemaType>({
     resolver: zodResolver(CommentCreateSchema),
+    defaultValues: {
+      nick: "",
+      email: "",
+      content: "",
+      link: "",
+      path: "",
+      parent_id: 0,
+      reply_id: 0,
+      reply_nick: "",
+    },
     mode: "onSubmit",
   });
 
   const onSubmit = async (data: CommentCreateSchemaType) => {
     try {
       setLoading(true);
-      console.log(data);
+      const res = await createComment(data);
       openChangeCallback(false);
+      form.reset();
       router.refresh();
+      toast({
+        title: "Comment created",
+        description: `Your comment has been created. ID: ${res.id}`,
+        duration: 1000,
+      });
     } catch (e) {
+      toast({
+        variant: "destructive",
+        title: "Create comment failed",
+        description: formatError(e),
+        duration: 1000,
+      });
     } finally {
       setLoading(false);
     }

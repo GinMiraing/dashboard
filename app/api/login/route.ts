@@ -47,15 +47,11 @@ export async function POST(request: Request) {
       avatarUrl: user.avatar_url,
     });
 
-    await RedisClient.set(
-      user.email_md5,
-      userData,
-      "EX",
-      60 * 60 * 24 * 30,
-      "NX",
-    );
+    const session = SHA256(`${user.email_md5}:${encodedPassword}`).toString();
 
-    cookies().set("SESSION", user.email_md5, {
+    await RedisClient.set(session, userData, "EX", 60 * 60 * 24 * 30, "NX");
+
+    cookies().set("SESSION", session, {
       maxAge: 60 * 60 * 24 * 7,
       path: "/",
       sameSite: "lax",

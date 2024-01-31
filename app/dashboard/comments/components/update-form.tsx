@@ -5,11 +5,13 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 
+import { deleteComment, updateComment } from "@/lib/axios";
 import {
   CommentPrismaType,
   CommentUpdateSchema,
   CommentUpdateSchemaType,
 } from "@/lib/types";
+import { formatError } from "@/lib/utils";
 
 import {
   AlertDialog,
@@ -40,6 +42,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/components/ui/use-toast";
 
 const UpdateForm: React.FC<{
   open: boolean;
@@ -47,6 +50,7 @@ const UpdateForm: React.FC<{
   data?: CommentPrismaType;
 }> = ({ data, open, openChangeCallback }) => {
   const router = useRouter();
+  const { toast } = useToast();
 
   const form = useForm<CommentUpdateSchemaType>({
     resolver: zodResolver(CommentUpdateSchema),
@@ -54,17 +58,28 @@ const UpdateForm: React.FC<{
   });
 
   const [loading, setLoading] = useState(false);
-  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertDialogOpen, setAlertDialogOpen] = useState(false);
 
   const commentId = useRef(1);
 
   const onSubmit = async (data: CommentUpdateSchemaType) => {
     try {
       setLoading(true);
-      console.log(data);
+      const res = await updateComment(commentId.current, data);
       openChangeCallback(false);
       router.refresh();
+      toast({
+        title: "Update comment success",
+        description: `Comment updated successfully. ID: ${res.id}`,
+        duration: 1000,
+      });
     } catch (e) {
+      toast({
+        variant: "destructive",
+        title: "Update comment failed",
+        description: formatError(e),
+        duration: 1000,
+      });
     } finally {
       setLoading(false);
     }
@@ -72,11 +87,26 @@ const UpdateForm: React.FC<{
 
   const handleDelete = async (id: number) => {
     try {
-      console.log("delete" + id);
-      setAlertOpen(false);
+      setLoading(true);
+      const res = await deleteComment(id);
+      setAlertDialogOpen(false);
       openChangeCallback(false);
       router.refresh();
-    } catch (e) {}
+      toast({
+        title: "Delete comment success",
+        description: `Comment deleted successfully. ID: ${res.id}`,
+        duration: 1000,
+      });
+    } catch (e) {
+      toast({
+        variant: "destructive",
+        title: "Delete comment failed",
+        description: formatError(e),
+        duration: 1000,
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -89,8 +119,6 @@ const UpdateForm: React.FC<{
       commentId.current = data.id;
     }
   }, [data]);
-
-  useEffect(() => {}, []);
 
   return (
     <>
@@ -388,7 +416,7 @@ const UpdateForm: React.FC<{
                   type="button"
                   disabled={loading}
                   variant="destructive"
-                  onClick={() => setAlertOpen(true)}
+                  onClick={() => setAlertDialogOpen(true)}
                 >
                   Delete
                 </Button>
@@ -397,19 +425,25 @@ const UpdateForm: React.FC<{
           </Form>
         </DialogContent>
       </Dialog>
-      <AlertDialog open={alertOpen}>
+      <AlertDialog open={alertDialogOpen}>
         <AlertDialogContent className="bg-white">
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone.
+              You will delete comment by id {commentId.current}.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setAlertOpen(false)}>
+            <AlertDialogCancel
+              disabled={loading}
+              onClick={() => setAlertDialogOpen(false)}
+            >
               Cancel
             </AlertDialogCancel>
-            <AlertDialogAction onClick={() => handleDelete(commentId.current)}>
+            <AlertDialogAction
+              disabled={loading}
+              onClick={() => handleDelete(commentId.current)}
+            >
               Continue
             </AlertDialogAction>
           </AlertDialogFooter>

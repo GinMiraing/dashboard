@@ -51,3 +51,5 @@ export type CommentPrismaType = {
 export enum Role {
   ADMIN = 1,
 }
+
+export const IdSchema = z.number().int().min(0);

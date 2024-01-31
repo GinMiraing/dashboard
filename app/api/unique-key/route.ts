@@ -2,6 +2,7 @@ import { SHA256 } from "crypto-js";
 import dayjs from "dayjs";
 import { NextResponse } from "next/server";
 
+import { InternalServerError } from "@/lib/backend";
 import RedisClient from "@/lib/redis";
 
 export async function GET(request: Request) {
@@ -15,11 +16,6 @@ export async function GET(request: Request) {
     return NextResponse.json({ data: key });
   } catch (e) {
     console.log(e);
-    return NextResponse.json(
-      { message: "generate unique key failed" },
-      {
-        status: 500,
-      },
-    );
+    return InternalServerError("generate unique key failed");
   }
 }

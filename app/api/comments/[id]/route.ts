@@ -1,39 +1,51 @@
-import { MD5 } from "crypto-js";
-import dayjs from "dayjs";
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
-import { BadRequest, CheckApiKey, Forbidden } from "@/lib/backend";
+import { BadRequest, Forbidden, checkAdminToken } from "@/lib/backend";
 import Prisma from "@/lib/prisma";
-import { CommentCreateSchema, CommentCreateSchemaType } from "@/lib/types";
+import {
+  CommentUpdateSchema,
+  CommentUpdateSchemaType,
+  IdSchema,
+} from "@/lib/types";
 
-export async function POST(request: Request) {
+export async function PUT(
+  request: Request,
+  { params }: { params: { id: string } },
+) {
+  const session = cookies().get("SESSION");
+
+  if (!session) {
+    return Forbidden();
+  }
+
   try {
-    await CheckApiKey(request);
+    await checkAdminToken(session.value);
   } catch (e) {
     return Forbidden();
   }
 
-  const data: CommentCreateSchemaType = await request.json();
+  const id = params.id;
 
   try {
-    CommentCreateSchema.parse(data);
+    IdSchema.parse(Number(id));
   } catch (e) {
     return BadRequest();
   }
 
-  const calculatedAttributes = {
-    email_md5: data.email ? MD5(data.email).toString() : "",
-    is_admin: data.link === "https://blog.zengjunyin.com" ? 1 : 0,
-    is_hidden: 0,
-    timestamp: dayjs().unix(),
-    reply_count: 0,
-  };
+  const data: CommentUpdateSchemaType = await request.json();
 
-  const result = await Prisma.comment.create({
-    data: {
-      ...data,
-      ...calculatedAttributes,
+  try {
+    CommentUpdateSchema.parse(data);
+  } catch (e) {
+    return BadRequest();
+  }
+
+  const result = await Prisma.comment.update({
+    where: {
+      id: Number(id),
     },
+    data,
   });
 
   return NextResponse.json({
@@ -41,11 +53,35 @@ export async function POST(request: Request) {
   });
 }
 
-export async function PUT(request: Request) {
-  return NextResponse.json(
-    {
-      message: "error",
+export async function DELETE(
+  request: Request,
+  { params }: { params: { id: string } },
+) {
+  const session = cookies().get("SESSION");
+
+  if (!session) {
+    return Forbidden();
+  }
+
+  try {
+    await checkAdminToken(session.value);
+  } catch (e) {
+    return Forbidden();
+  }
+
+  const id = params.id;
+
+  try {
+    IdSchema.parse(Number(id));
+  } catch (e) {
+    return BadRequest();
+  }
+
+  const result = await Prisma.comment.delete({
+    where: {
+      id: Number(id),
     },
-    { status: 500 },
-  );
+  });
+
+  return NextResponse.json({ data: result });
 }
