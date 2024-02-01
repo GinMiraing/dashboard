@@ -1,5 +1,11 @@
 import { z } from "zod";
 
+import { PaginationSchema } from ".";
+
+export const CommentQuerySchema = PaginationSchema.extend({
+  path: z.string().optional(),
+});
+
 export const CommentUpdateSchema = z.object({
   nick: z.string().min(1),
   email: z.string().email(),
@@ -47,15 +53,3 @@ export type CommentPrismaType = {
   reply_id: number;
   reply_nick: string;
 };
-
-export enum Role {
-  ADMIN = 1,
-}
-
-export const IdSchema = z.number().int().min(0);
-
-export const CommentQuerySchema = z.object({
-  path: z.string().optional(),
-  page: z.number().int().min(1),
-  size: z.number().int().min(1),
-});
