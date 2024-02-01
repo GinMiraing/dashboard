@@ -16,7 +16,7 @@ export async function GET(request: Request) {
   const querys = {
     path: params.get("path"),
     page: Number(params.get("page")) || 1,
-    size: Number(params.get("size")) || 10,
+    size: Number(params.get("size")) || 1000,
   };
 
   try {
@@ -43,9 +43,11 @@ export async function GET(request: Request) {
     },
     take: querys.size,
     skip: (querys.page - 1) * querys.size,
-    orderBy: {
-      id: "desc",
-    },
+    orderBy: [
+      {
+        id: "desc",
+      },
+    ],
   });
 
   const ids = mainComments.map(({ id }) => id);
