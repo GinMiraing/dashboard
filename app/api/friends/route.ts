@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server";
 
-import { BadRequest } from "@/lib/backend";
+import { BadRequest, CheckApiKey, Forbidden } from "@/lib/backend";
 import Prisma from "@/lib/prisma";
-import { PaginationSchema } from "@/lib/types";
+import {
+  FriendCreateSchema,
+  FriendCreateSchemaType,
+  PaginationSchema,
+} from "@/lib/types";
 
 export async function GET(request: Request) {
   const params = new URL(request.url).searchParams;
@@ -37,5 +41,32 @@ export async function GET(request: Request) {
 
   return NextResponse.json({
     data,
+  });
+}
+
+export async function POST(request: Request) {
+  try {
+    await CheckApiKey(request);
+  } catch (e) {
+    return Forbidden();
+  }
+
+  const data: FriendCreateSchemaType = await request.json();
+
+  try {
+    FriendCreateSchema.parse(data);
+  } catch (e) {
+    return BadRequest();
+  }
+
+  const result = await Prisma.friend.create({
+    data: {
+      ...data,
+      is_hidden: 0,
+    },
+  });
+
+  return NextResponse.json({
+    data: result,
   });
 }
