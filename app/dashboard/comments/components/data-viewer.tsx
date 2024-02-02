@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import CreateForm from "./create-form";
+import Filters from "./filters";
 import UpdateForm from "./update-form";
 
 const columns: ColumnDef<CommentPrismaType>[] = [
@@ -127,37 +128,43 @@ const DataViewer = ({ data }: { data: CommentPrismaType[] }) => {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-end space-x-4">
-        <DropdownMenu modal={false}>
-          <DropdownMenuTrigger asChild>
-            <Button
-              className="w-32"
-              variant="outline"
-            >
-              Custom Columns
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {columns.map((column) => {
-              const id = column.id as string;
-              return (
-                <DropdownMenuCheckboxItem
-                  key={id}
-                  checked={invisibleColumns[id]}
-                  onCheckedChange={() =>
-                    setInvisibleColumns((prev) => ({
-                      ...prev,
-                      [id]: !prev[id],
-                    }))
-                  }
-                >
-                  {id}
-                </DropdownMenuCheckboxItem>
-              );
-            })}
-          </DropdownMenuContent>
-        </DropdownMenu>
-        <Button onClick={() => setCreateDialogOpen((prev) => !prev)}>
+      <div className="flex w-full flex-col items-end space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-x-4 sm:space-y-0">
+        <div className="flex flex-col items-end space-x-0 space-y-4 sm:flex-row sm:items-center sm:space-x-4 sm:space-y-0">
+          <DropdownMenu modal={false}>
+            <DropdownMenuTrigger asChild>
+              <Button
+                className="w-32"
+                variant="outline"
+              >
+                Custom Columns
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {columns.map((column) => {
+                const id = column.id as string;
+                return (
+                  <DropdownMenuCheckboxItem
+                    key={id}
+                    checked={invisibleColumns[id]}
+                    onCheckedChange={() =>
+                      setInvisibleColumns((prev) => ({
+                        ...prev,
+                        [id]: !prev[id],
+                      }))
+                    }
+                  >
+                    {id}
+                  </DropdownMenuCheckboxItem>
+                );
+              })}
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <Filters />
+        </div>
+        <Button
+          className="w-32"
+          onClick={() => setCreateDialogOpen((prev) => !prev)}
+        >
           New Comment
         </Button>
       </div>

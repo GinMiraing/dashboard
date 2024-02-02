@@ -1,10 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { usePathname } from "next/navigation";
-import { useSearchParams } from "next/navigation";
-import { useCallback } from "react";
 
+import { useCreateQueryString } from "@/lib/hooks";
 import { cn } from "@/lib/utils";
 
 import { Button } from "./button";
@@ -13,6 +11,9 @@ const Pagination: React.FC<{
   currentPage: number;
   totalPage: number;
 }> = ({ currentPage, totalPage }) => {
+  const router = useRouter();
+  const { createQueryString } = useCreateQueryString();
+
   const pages = [
     currentPage - 2,
     currentPage - 1,
@@ -21,25 +22,18 @@ const Pagination: React.FC<{
     currentPage + 2,
   ].filter((item) => item > 1 && item < totalPage);
 
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-
-  const createQueryString = useCallback(
-    (name: string, value: string) => {
-      const params = new URLSearchParams(searchParams.toString());
-      params.set(name, value);
-
-      return params.toString();
-    },
-    [searchParams],
-  );
-
   return (
     <div className="flex items-center justify-center space-x-2">
       <Button
         onClick={() =>
-          router.push(`${pathname}?${createQueryString("page", "1")}`)
+          router.push(
+            createQueryString([
+              {
+                name: "page",
+                value: "1",
+              },
+            ]),
+          )
         }
         disabled={currentPage === 1}
         className="flex h-9 w-9 items-center justify-center rounded"
@@ -58,7 +52,12 @@ const Pagination: React.FC<{
           key={page}
           onClick={() =>
             router.push(
-              `${pathname}?${createQueryString("page", page.toString())}`,
+              createQueryString([
+                {
+                  name: "page",
+                  value: page.toString(),
+                },
+              ]),
             )
           }
           disabled={currentPage === page}
@@ -77,7 +76,12 @@ const Pagination: React.FC<{
       <Button
         onClick={() =>
           router.push(
-            `${pathname}?${createQueryString("page", totalPage.toString())}`,
+            createQueryString([
+              {
+                name: "page",
+                value: totalPage.toString(),
+              },
+            ]),
           )
         }
         disabled={currentPage === totalPage}

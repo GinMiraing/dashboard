@@ -81,7 +81,7 @@ const UpdateForm: React.FC<{
     } catch (e) {
       toast({
         variant: "destructive",
-        title: "Update comment failed",
+        title: "Update Comment Failed",
         description: formatError(e),
         duration: 1000,
       });
@@ -100,7 +100,7 @@ const UpdateForm: React.FC<{
     } catch (e) {
       toast({
         variant: "destructive",
-        title: "Delete comment failed",
+        title: "Delete Comment Failed",
         description: formatError(e),
         duration: 1000,
       });

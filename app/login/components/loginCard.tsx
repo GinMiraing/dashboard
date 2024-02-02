@@ -58,7 +58,7 @@ const LoginCard = () => {
     } catch (e) {
       toast({
         variant: "destructive",
-        title: "Login failed",
+        title: "Login Failed",
         description: formatError(e),
         duration: 1000,
       });

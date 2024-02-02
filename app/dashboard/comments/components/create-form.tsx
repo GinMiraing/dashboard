@@ -74,7 +74,7 @@ const CreateForm: React.FC<{
     } catch (e) {
       toast({
         variant: "destructive",
-        title: "Create comment failed",
+        title: "Create Comment Failed",
         description: formatError(e),
         duration: 1000,
       });

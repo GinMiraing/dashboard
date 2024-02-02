@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 export const useMediaQuery = () => {
   const [isMobile, setIsMobile] = useState(false);
@@ -26,5 +27,27 @@ export const useMediaQuery = () => {
 
   return {
     isMobile,
+  };
+};
+
+export const useCreateQueryString = () => {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const createQueryString = useCallback(
+    (querylist: { name: string; value: string }[]) => {
+      const params = new URLSearchParams(searchParams.toString());
+
+      for (const query of querylist) {
+        params.set(query.name, query.value);
+      }
+
+      return pathname + "?" + params.toString();
+    },
+    [pathname, searchParams],
+  );
+
+  return {
+    createQueryString,
   };
 };

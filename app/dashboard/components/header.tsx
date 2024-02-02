@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import { Role } from "@/lib/types";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -15,7 +17,12 @@ const Header: React.FC<{
 }> = ({ userData }) => {
   return (
     <header className="flex h-20 w-full items-center justify-between bg-white px-6 shadow">
-      <div className="font-medium text-xl">Dashboard</div>
+      <Link
+        href="/dashboard"
+        className="font-medium text-xl"
+      >
+        Dashboard
+      </Link>
       <Avatar className="h-12 w-12 border shadow">
         <AvatarImage
           src={
