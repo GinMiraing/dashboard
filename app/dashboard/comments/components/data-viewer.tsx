@@ -16,11 +16,6 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 
 import CreateForm from "./create-form";
 import UpdateForm from "./update-form";
@@ -108,19 +103,7 @@ const columns: ColumnDef<CommentPrismaType>[] = [
       const sliceContent =
         value.length > 30 ? `${value.slice(0, 30)}...` : value;
 
-      return (
-        <Popover modal>
-          <PopoverTrigger asChild>
-            <div className="line-clamp-2 text-sm">{sliceContent}</div>
-          </PopoverTrigger>
-          <PopoverContent
-            sideOffset={8}
-            asChild
-          >
-            <div className="text-justify text-sm/7">{value}</div>
-          </PopoverContent>
-        </Popover>
-      );
+      return <div className="line-clamp-2 text-sm">{sliceContent}</div>;
     },
   },
 ];
@@ -143,14 +126,16 @@ const DataViewer = ({ data }: { data: CommentPrismaType[] }) => {
   );
 
   return (
-    <div>
-      <div className="flex items-center justify-between space-x-4">
-        <Button onClick={() => setCreateDialogOpen((prev) => !prev)}>
-          Create New Comment
-        </Button>
-        <DropdownMenu>
+    <div className="space-y-4">
+      <div className="flex items-center justify-end space-x-4">
+        <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
-            <Button className="w-32">Columns</Button>
+            <Button
+              className="w-32"
+              variant="outline"
+            >
+              Custom Columns
+            </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             {columns.map((column) => {
@@ -172,6 +157,9 @@ const DataViewer = ({ data }: { data: CommentPrismaType[] }) => {
             })}
           </DropdownMenuContent>
         </DropdownMenu>
+        <Button onClick={() => setCreateDialogOpen((prev) => !prev)}>
+          New Comment
+        </Button>
       </div>
       <DataTable
         data={data}
