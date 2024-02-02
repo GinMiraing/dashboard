@@ -9,6 +9,8 @@ import {
   IdSchema,
 } from "@/lib/types";
 
+export const revalidate = 0;
+
 export async function PUT(
   request: Request,
   { params }: { params: { id: string } },

@@ -5,6 +5,8 @@ import { NextResponse } from "next/server";
 import { InternalServerError } from "@/lib/backend";
 import RedisClient from "@/lib/redis";
 
+export const revalidate = 0;
+
 export async function GET(request: Request) {
   try {
     const timestamp = dayjs().unix();

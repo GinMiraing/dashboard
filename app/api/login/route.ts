@@ -12,6 +12,8 @@ import Prisma from "@/lib/prisma";
 import RedisClient from "@/lib/redis";
 import { formatError } from "@/lib/utils";
 
+export const revalidate = 0;
+
 export async function POST(request: Request) {
   try {
     const data: {
