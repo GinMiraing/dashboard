@@ -8,6 +8,7 @@ README.md
 
 .next
 .git
+.vscode
 
 .env.example
 
