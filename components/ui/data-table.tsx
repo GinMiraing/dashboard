@@ -71,6 +71,9 @@ export function DataTable<TData, TValue>({
                   key={row.id}
                   onClick={() => clickCallback?.(row.original)}
                   data-state={row.getIsSelected() && "selected"}
+                  className={
+                    clickCallback !== undefined ? "hover:cursor-pointer" : ""
+                  }
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
