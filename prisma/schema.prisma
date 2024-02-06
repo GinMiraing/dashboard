@@ -7,52 +7,107 @@ datasource db {
   url      = env("MYSQL_URI")
 }
 
-model comment {
+model Friend {
   id          Int    @id @default(autoincrement())
-  nick        String @default("") @db.VarChar(50)
-  email       String @default("") @db.VarChar(50)
-  email_md5   String @default("") @db.Char(32)
-  link        String @default("") @db.VarChar(60)
-  content     String @default("") @db.VarChar(255)
-  is_admin    Int    @default(0) @db.TinyInt
-  is_hidden   Int    @default(0) @db.TinyInt
-  timestamp   Int    @default(0) @db.UnsignedInt
-  reply_count Int    @default(0) @db.UnsignedInt
-  path        String @default("") @db.VarChar(50)
-  parent_id   Int    @default(0) @db.UnsignedInt
-  reply_id    Int    @default(0) @db.UnsignedInt
-  reply_nick  String @default("") @db.VarChar(50)
-}
-
-model friend {
-  id          Int    @id @default(autoincrement())
-  name        String @default("") @db.VarChar(50)
-  link        String @default("") @db.VarChar(60)
+  name        String @default("") @db.VarChar(255)
+  link        String @default("") @db.VarChar(255)
   avatar      String @default("") @db.VarChar(255)
   description String @default("") @db.VarChar(255)
-  category    String @default("") @db.VarChar(10)
+  category    String @default("") @db.VarChar(255)
   is_hidden   Int    @default(0) @db.TinyInt
-  sorting     Int    @default(0)
+  sorting     Int    @default(0) @db.UnsignedInt
 }
 
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model user {
+model User {
+  id        Int       @id @default(autoincrement())
+  comment   Comment[]
+  reply     Reply[]
+  favor     Favor[]
+  name      String    @default("") @db.VarChar(255)
+  email     String    @unique @default("") @db.VarChar(255)
+  email_md5 String    @default("") @db.Char(32)
+  site_url  String    @default("") @db.VarChar(255)
+  tag       String    @default("") @db.VarChar(255)
+  banned    Boolean   @default(false) @db.TinyInt
+}
+
+model Admin {
   id         Int    @id @default(autoincrement())
-  username   String @db.VarChar(255)
-  email      String @unique @db.VarChar(255)
-  email_md5  String @db.Char(32)
-  password   String @db.Char(64)
-  role       Int    @default(0) @db.TinyInt
-  avatar_url String @db.VarChar(255)
+  name       String @default("") @db.VarChar(255)
+  email      String @unique @default("") @db.VarChar(255)
+  email_md5  String @default("") @db.Char(32)
+  password   String @default("") @db.Char(64)
+  salt       String @default("") @db.Char(8)
+  avatar_url String @default("") @db.VarChar(255)
 }
 
-model post {
-  id          Int    @id @default(autoincrement())
-  title       String @default("") @db.VarChar(255)
-  description String @default("") @db.VarChar(255)
-  timestamp   Int    @default(0) @db.UnsignedInt
-  tag         String @default("") @db.VarChar(255)
-  md_file_url String @default("") @db.VarChar(255)
-  cover_url   String @default("") @db.VarChar(255)
-  is_hidden   Int    @default(0) @db.TinyInt
+model Post {
+  id          Int       @id @default(autoincrement())
+  comment     Comment[]
+  favor       Favor[]
+  title       String    @default("") @db.VarChar(255)
+  description String    @default("") @db.VarChar(255)
+  cover_url   String    @default("") @db.VarChar(255)
+  md_file_url String    @default("") @db.VarChar(255)
+  tag         String    @default("") @db.VarChar(255)
+  create_at   DateTime  @default(now())
+  update_at   DateTime  @updatedAt
+  published   Boolean   @default(true) @db.TinyInt
+}
+
+model Moment {
+  id        Int       @id @default(autoincrement())
+  comment   Comment[]
+  favor     Favor[]
+  content   String    @default("") @db.VarChar(255)
+  image_url String    @default("") @db.VarChar(255)
+  tag       String    @default("") @db.VarChar(255)
+  create_at DateTime  @default(now())
+  update_at DateTime  @updatedAt
+  published Boolean   @default(true) @db.TinyInt
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  post      Post     @relation(fields: [post_id], references: [id])
+  post_id   Int
+  moment    Moment   @relation(fields: [moment_id], references: [id])
+  moment_id Int
+  user      User     @relation(fields: [user_id], references: [id])
+  user_id   Int
+  reply     Reply[]
+  favor     Favor[]
+  content   String   @default("") @db.VarChar(255)
+  create_at DateTime @default(now())
+  update_at DateTime @updatedAt
+  published Boolean  @default(true) @db.TinyInt
+}
+
+model Reply {
+  id         Int      @id @default(autoincrement())
+  comment    Comment  @relation(fields: [comment_id], references: [id])
+  comment_id Int
+  user       User     @relation(fields: [user_id], references: [id])
+  user_id    Int
+  favor      Favor[]
+  reply_id   Int      @default(0) @db.UnsignedInt
+  reply_name String   @default("") @db.VarChar(255)
+  content    String   @default("") @db.VarChar(255)
+  create_at  DateTime @default(now())
+  update_at  DateTime @updatedAt
+  published  Boolean  @default(true) @db.TinyInt
+}
+
+model Favor {
+  id         Int      @id @default(autoincrement())
+  user       User?    @relation(fields: [user_id], references: [id])
+  user_id    Int?
+  post       Post?    @relation(fields: [post_id], references: [id])
+  post_id    Int?
+  moment     Moment?  @relation(fields: [moment_id], references: [id])
+  moment_id  Int?
+  comment    Comment? @relation(fields: [comment_id], references: [id])
+  comment_id Int?
+  reply      Reply?   @relation(fields: [reply_id], references: [id])
+  reply_id   Int?
 }
