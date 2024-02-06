@@ -4,18 +4,20 @@ import { BadRequest } from "@/lib/backend";
 import Prisma from "@/lib/prisma";
 import { PaginationSchema } from "@/lib/types";
 
-export async function GET(request: Request) {
-  const params = new URL(request.url).searchParams;
+export const revalidate = 0;
+
+export async function GET(req: Request) {
+  const searchParams = new URL(req.url).searchParams;
 
   const querys = {
     page: 1,
-    size: Number(params.get("size")) || 1000,
+    size: Number(searchParams.get("size")) || 10,
   };
 
   try {
     PaginationSchema.parse(querys);
   } catch (e) {
-    return BadRequest("invalid query");
+    return BadRequest();
   }
 
   const posts = await Prisma.post.findMany({
@@ -23,25 +25,29 @@ export async function GET(request: Request) {
       id: true,
       title: true,
       description: true,
-      timestamp: true,
-      tag: true,
-      md_file_url: true,
       cover_url: true,
+      tag: true,
+      create_at: true,
+      _count: {
+        select: {
+          favor: true,
+        },
+      },
     },
     where: {
-      is_hidden: 0,
+      published: true,
     },
-    take: querys.size,
     orderBy: [
       {
-        id: "desc",
+        create_at: "desc",
       },
     ],
+    take: querys.size,
   });
 
   const total = await Prisma.post.count({
     where: {
-      is_hidden: 0,
+      published: true,
     },
   });
 

@@ -19,16 +19,14 @@ model Friend {
 }
 
 model User {
-  id        Int       @id @default(autoincrement())
-  comment   Comment[]
-  reply     Reply[]
+  id        Int     @id @default(autoincrement())
+  name      String  @default("") @db.VarChar(255)
+  email     String  @unique @default("") @db.VarChar(255)
+  email_md5 String  @default("") @db.Char(32)
+  site_url  String  @default("") @db.VarChar(255)
+  tag       String  @default("") @db.VarChar(255)
+  banned    Boolean @default(false) @db.TinyInt
   favor     Favor[]
-  name      String    @default("") @db.VarChar(255)
-  email     String    @unique @default("") @db.VarChar(255)
-  email_md5 String    @default("") @db.Char(32)
-  site_url  String    @default("") @db.VarChar(255)
-  tag       String    @default("") @db.VarChar(255)
-  banned    Boolean   @default(false) @db.TinyInt
 }
 
 model Admin {
@@ -42,60 +40,60 @@ model Admin {
 }
 
 model Post {
-  id          Int       @id @default(autoincrement())
-  comment     Comment[]
+  id          Int      @id @default(autoincrement())
+  title       String   @default("") @db.VarChar(255)
+  description String   @default("") @db.VarChar(255)
+  cover_url   String   @default("") @db.VarChar(255)
+  md_file_url String   @default("") @db.VarChar(255)
+  tag         String   @default("") @db.VarChar(255)
+  create_at   DateTime @default(now())
+  update_at   DateTime @updatedAt
+  published   Boolean  @default(true) @db.TinyInt
   favor       Favor[]
-  title       String    @default("") @db.VarChar(255)
-  description String    @default("") @db.VarChar(255)
-  cover_url   String    @default("") @db.VarChar(255)
-  md_file_url String    @default("") @db.VarChar(255)
-  tag         String    @default("") @db.VarChar(255)
-  create_at   DateTime  @default(now())
-  update_at   DateTime  @updatedAt
-  published   Boolean   @default(true) @db.TinyInt
 }
 
 model Moment {
-  id        Int       @id @default(autoincrement())
-  comment   Comment[]
-  favor     Favor[]
-  content   String    @default("") @db.VarChar(255)
-  image_url String    @default("") @db.VarChar(255)
-  tag       String    @default("") @db.VarChar(255)
-  create_at DateTime  @default(now())
-  update_at DateTime  @updatedAt
-  published Boolean   @default(true) @db.TinyInt
-}
-
-model Comment {
   id        Int      @id @default(autoincrement())
-  post      Post     @relation(fields: [post_id], references: [id])
-  post_id   Int
-  moment    Moment   @relation(fields: [moment_id], references: [id])
-  moment_id Int
-  user      User     @relation(fields: [user_id], references: [id])
-  user_id   Int
-  reply     Reply[]
-  favor     Favor[]
   content   String   @default("") @db.VarChar(255)
+  image_url String   @default("") @db.VarChar(255)
+  tag       String   @default("") @db.VarChar(255)
   create_at DateTime @default(now())
   update_at DateTime @updatedAt
   published Boolean  @default(true) @db.TinyInt
+  favor     Favor[]
+}
+
+model Comment {
+  id             Int      @id @default(autoincrement())
+  post_id        Int?     @default(0) @db.UnsignedInt
+  moment_id      Int?     @default(0) @db.UnsignedInt
+  user_name      String   @default("") @db.VarChar(255)
+  user_email_md5 String   @default("") @db.Char(32)
+  user_site_url  String   @default("") @db.VarChar(255)
+  user_tag       String   @default("") @db.VarChar(255)
+  content        String   @default("") @db.VarChar(255)
+  create_at      DateTime @default(now())
+  update_at      DateTime @updatedAt
+  published      Boolean  @default(true) @db.TinyInt
+  favor          Favor[]
+  reply          Reply[]
 }
 
 model Reply {
-  id         Int      @id @default(autoincrement())
-  comment    Comment  @relation(fields: [comment_id], references: [id])
-  comment_id Int
-  user       User     @relation(fields: [user_id], references: [id])
-  user_id    Int
-  favor      Favor[]
-  reply_id   Int      @default(0) @db.UnsignedInt
-  reply_name String   @default("") @db.VarChar(255)
-  content    String   @default("") @db.VarChar(255)
-  create_at  DateTime @default(now())
-  update_at  DateTime @updatedAt
-  published  Boolean  @default(true) @db.TinyInt
+  id             Int      @id @default(autoincrement())
+  comment        Comment  @relation(fields: [comment_id], references: [id])
+  comment_id     Int
+  reply_id       Int      @default(0) @db.UnsignedInt
+  reply_name     String   @default("") @db.VarChar(255)
+  user_name      String   @default("") @db.VarChar(255)
+  user_email_md5 String   @default("") @db.Char(32)
+  user_site_url  String   @default("") @db.VarChar(255)
+  user_tag       String   @default("") @db.VarChar(255)
+  content        String   @default("") @db.VarChar(255)
+  create_at      DateTime @default(now())
+  update_at      DateTime @updatedAt
+  published      Boolean  @default(true) @db.TinyInt
+  favor          Favor[]
 }
 
 model Favor {
