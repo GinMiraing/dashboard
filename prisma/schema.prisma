@@ -45,3 +45,14 @@ model user {
   role       Int    @default(0) @db.TinyInt
   avatar_url String @db.VarChar(255)
 }
+
+model post {
+  id          Int    @id @default(autoincrement())
+  title       String @default("") @db.VarChar(255)
+  description String @default("") @db.VarChar(255)
+  timestamp   Int    @default(0) @db.UnsignedInt
+  tag         String @default("") @db.VarChar(255)
+  md_file_url String @default("") @db.VarChar(255)
+  cover_url   String @default("") @db.VarChar(255)
+  is_hidden   Int    @default(0) @db.TinyInt
+}
